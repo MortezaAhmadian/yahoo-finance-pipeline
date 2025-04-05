@@ -34,7 +34,7 @@ This project implements a complete data pipeline with the following components:
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/yahoo-finance-pipeline.git
+   git clone https://github.com/mortezaahmadian/yahoo-finance-pipeline.git
    cd yahoo-finance-pipeline
    ```
 

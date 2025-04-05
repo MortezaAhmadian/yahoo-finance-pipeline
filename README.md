@@ -12,9 +12,7 @@ This project implements a complete data pipeline with the following components:
 - **Storage**: Snowflake for data warehousing
 - **Orchestration**: Apache Airflow for workflow management
 - **Containerization**: Docker for consistent deployment across environments
-
-![Architecture Diagram](https://via.placeholder.com/800x400?text=Yahoo+Finance+Pipeline+Architecture)
-
+  
 ## Key Features
 
 - Real-time streaming of stock price data using Kafka

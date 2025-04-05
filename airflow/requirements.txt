@@ -1,0 +1,14 @@
+apache-airflow-providers-docker
+apache-airflow-providers-apache-spark
+apache-airflow-providers-snowflake
+apache-airflow-providers-postgres
+apache-airflow-providers-apache-kafka
+apache-airflow-providers-openlineage
+yfinance
+pyspark
+kafka-python
+snowflake-connector-python
+snowflake-sqlalchemy
+pandas
+numpy
+python-dotenv

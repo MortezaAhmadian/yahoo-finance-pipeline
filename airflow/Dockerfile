@@ -29,6 +29,10 @@ RUN mkdir -p /opt/spark-apps && chown -R 50000:0 /opt/spark-apps
 RUN groupadd -g 1003 docker_host \
     && usermod -aG docker_host airflow
 
+# Add custom entrypoint script
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
 USER airflow
 
 # Install Python packages with constraints to ensure compatibility

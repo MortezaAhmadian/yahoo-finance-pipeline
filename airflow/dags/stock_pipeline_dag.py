@@ -62,30 +62,17 @@ start_kafka_producer = BashOperator(
 run_spark_job = BashOperator(
     task_id='run_spark_job',
     bash_command="""
-    # Load variables from .env file
-    PROJECT_ROOT='/opt/airflow'
-    if [ -f "$PROJECT_ROOT/.env" ]; then
-        # Read the .env file line by line
-        while IFS='=' read -r key value || [ -n "$key" ]; do
-            # Skip comments and empty lines
-            [[ $key == \#* ]] && continue
-            [[ -z "$key" ]] && continue
-            # Remove quotes if present
-            value=$(echo $value | sed -e 's/^"//' -e 's/"$//' -e "s/^'//" -e "s/'$//")
-            # Set the environment variable
-            export $key="$value"
-            echo "Loaded $key from .env file"
-        done < "$PROJECT_ROOT/.env"
+    # The .env file should already be in place thanks to our entrypoint script
+    ENV_FILE="/opt/airflow/.env"
+    if [ -f "$ENV_FILE" ]; then
+        echo "Found .env file at $ENV_FILE"
     else
-        echo "Warning: .env file not found at $PROJECT_ROOT/.env"
-        exit 1
+        echo "Warning: .env file not found at $ENV_FILE, will use environment variables"
     fi
     
-    # Use hardcoded container name instead of docker format command
+    # Use hardcoded container name
     CONTAINER_NAME="realtime_data_platform-spark-worker-1"
-    
     echo "Using container: $CONTAINER_NAME"
-    echo "Using Snowflake Account: $SNOWFLAKE_ACCOUNT"
     
     # Pass environment variables to the Spark job
     docker exec \\

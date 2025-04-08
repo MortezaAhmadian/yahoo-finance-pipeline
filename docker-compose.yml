@@ -21,6 +21,15 @@ services:
       - zookeeper
     restart: unless-stopped
     
+  kafka-producer:
+    build: ./kafka-producer
+    depends_on:
+      - kafka
+    volumes:
+      - ./kafka-producer/producer.py:/app/producer.py
+    command: python /app/producer.py
+    restart: unless-stopped
+
   spark-master:
     image: bitnami/spark:latest
     environment:

@@ -15,10 +15,10 @@ snowflake_password = os.environ.get("SNOWFLAKE_PASSWORD")
 snowflake_role = os.environ.get("INITIAL_ROLE", "ACCOUNTADMIN")  # Use ACCOUNTADMIN initially
 
 # Target resources to create
-target_warehouse = os.environ.get("SNOWFLAKE_WAREHOUSE", "STOCK_DATA_WH")
-target_database = os.environ.get("SNOWFLAKE_DATABASE", "STOCK_DATA")
-target_schema = os.environ.get("SNOWFLAKE_SCHEMA", "PUBLIC")
-target_role = os.environ.get("SNOWFLAKE_ROLE", "STOCK_DATA_ROLE")
+target_warehouse = os.environ.get("SNOWFLAKE_WAREHOUSE")
+target_database = os.environ.get("SNOWFLAKE_DATABASE")
+target_schema = os.environ.get("SNOWFLAKE_SCHEMA")
+target_role = os.environ.get("SNOWFLAKE_ROLE")
 
 def execute_query(conn, query):
     try:

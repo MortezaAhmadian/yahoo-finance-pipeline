@@ -5,6 +5,8 @@ from airflow.sensors.external_task import ExternalTaskSensor
 from airflow.providers.snowflake.operators.snowflake import SnowflakeOperator
 from datetime import datetime, timedelta
 import os
+import importlib.util
+
 
 default_args = {
     'owner': 'data_team',
@@ -52,13 +54,15 @@ create_snowflake_table = SnowflakeOperator(
     dag=dag
 )
 
-# Start Kafka producer
-start_kafka_producer = BashOperator(
-    task_id='start_kafka_producer',
-    bash_command='python /opt/airflow/dags/producer.py &',  # Run in background
-    dag=dag
-)
+def run_producer():
+    spec = importlib.util.spec_from_file_location("producer", "/opt/producer.py")
+    producer_module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(producer_module)
 
+    # Start producer and let it run
+    producer_module.start_producer()
+
+# start spark job
 run_spark_job = BashOperator(
     task_id='run_spark_job',
     bash_command="""
@@ -81,7 +85,7 @@ run_spark_job = BashOperator(
       -e SNOWFLAKE_PASSWORD="$SNOWFLAKE_PASSWORD" \\
       -e SNOWFLAKE_WAREHOUSE="$SNOWFLAKE_WAREHOUSE" \\
       -e SNOWFLAKE_DATABASE="$SNOWFLAKE_DATABASE" \\
-      -e SNOWFLAKE_SCHEMA="$SNOWFLAKE_SCHEMA" \\
+      -e SNOWFLAKE_SCHEMA="$SNOWFLAKE_SCHEMoA" \\
       -e SNOWFLAKE_ROLE="$SNOWFLAKE_ROLE" \\
       $CONTAINER_NAME /opt/bitnami/spark/bin/spark-submit \\
       --master spark://spark-master:7077 \\
@@ -107,4 +111,4 @@ data_validation = SnowflakeOperator(
 )
 
 # Set task dependencies
-services_check >> create_snowflake_table >> start_kafka_producer >> run_spark_job >> data_validation
+services_check >> create_snowflake_table >> run_spark_job >> data_validation

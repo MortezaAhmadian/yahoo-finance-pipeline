@@ -91,37 +91,60 @@ def process_data(df):
         raise
 
 def write_to_snowflake(df):
-    """Write data to Snowflake"""
+    """Write data to Snowflake with detailed debugging"""
     try:
-        # First save to console for debugging
-        df.write.format("console").save()
-        
-        # Check if all required Snowflake credentials are available
-        if not all([snowflake_account, snowflake_user, snowflake_password]):
-            logger.error("Missing required Snowflake credentials")
-            raise ValueError("Missing required Snowflake credentials")
-            
         # Format Snowflake account URL
         sf_url = f"{snowflake_account}.snowflakecomputing.com"
         
-        # Write to Snowflake
+        # Log connection details (without credentials)
+        logger.info(f"Connecting to Snowflake at {sf_url}")
+        logger.info(f"Using database: {snowflake_database}, schema: {snowflake_schema}, warehouse: {snowflake_warehouse}")
+        logger.info(f"Role: {snowflake_role}")
+        
+        # Show what we're trying to write (sample data)
+        logger.info("Sample data to be written:")
+        df.show(5, truncate=False)
+        
+        schema = snowflake_schema if snowflake_schema else "PUBLIC"
+        
+        # Additional options for debugging
+        options = {
+            "sfURL": sf_url,
+            "sfUser": snowflake_user,
+            "sfPassword": snowflake_password,
+            "sfDatabase": snowflake_database,
+            "sfSchema": schema,
+            "sfWarehouse": snowflake_warehouse,
+            "sfRole": snowflake_role,
+            "dbtable": "STOCK_PRICES",
+            "driver": "net.snowflake.client.jdbc.SnowflakeDriver",
+            "truncate_table": "off",
+            "autopushdown": "off",
+            "jdbc.use.legacy.datetime.code": "false",
+            "purge": "off"
+        }
+        
+        # Log all options (except password)
+        safe_options = {k: v for k, v in options.items() if k != "sfPassword"}
+        logger.info(f"Snowflake connection options: {safe_options}")
+        
+        # Attempt to write with detailed error capturing
         df.write \
             .format("net.snowflake.spark.snowflake") \
-            .option("sfURL", sf_url) \
-            .option("sfUser", snowflake_user) \
-            .option("sfPassword", snowflake_password) \
-            .option("sfDatabase", snowflake_database) \
-            .option("sfSchema", snowflake_schema) \
-            .option("sfWarehouse", snowflake_warehouse) \
-            .option("sfRole", snowflake_role) \
-            .option("dbtable", "STOCK_PRICES") \
+            .options(**options) \
             .mode("append") \
             .save()
         
         logger.info("Data successfully written to Snowflake")
     except Exception as e:
-        logger.error(f"Failed to write to Snowflake: {e}")
-        # Continue with execution to ensure we at least log the data
+        logger.error(f"Failed to write to Snowflake. Error type: {type(e).__name__}")
+        logger.error(f"Error message: {str(e)}")
+        
+        # Print the full stack trace for debugging
+        import traceback
+        logger.error("Full traceback:")
+        logger.error(traceback.format_exc())
+
 
 def main():
     try:
